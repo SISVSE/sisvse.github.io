@@ -3,3 +3,4 @@ description: "A comprehensive technical report on surgical scene segmentation us
 baseurl: ""
 url: "https://sisvse.github.io"
 timezone: "UTC"
+header_pages: []
