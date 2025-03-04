@@ -1,0 +1,2160 @@
+---
+layout: default
+---
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI Research Technical Report</title>
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.4/css/bulma.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <style>
+    body {
+      font-family: 'Noto Sans', sans-serif;
+      background-color: #ffffff;
+      color: #333;
+      line-height: 1.6;
+    }
+
+    .section-title {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      font-weight: 600;
+      color: #2c3e50;
+    }
+
+    .content {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    .container {
+      max-width: 960px !important;
+    }
+
+    .hero {
+      width: 100%;
+      background-color: #ffffff;
+      border-bottom: 1px solid #eaecef;
+    }
+
+    .hero .container {
+      max-width: 960px !important;
+    }
+
+    .hero .title {
+      color: #2c3e50;
+      font-weight: 600;
+    }
+
+    .hero .subtitle {
+      color: #6a737d;
+    }
+
+    .section {
+      padding: 2rem 1.5rem;
+      background-color: #ffffff;
+    }
+
+    .footer {
+      background-color: #ffffff;
+      border-top: 1px solid #eaecef;
+      padding: 2rem 0;
+    }
+
+    p {
+      color: #24292e;
+      margin-bottom: 1rem;
+    }
+
+
+    .dataset-button {
+      display: inline-block;
+      padding: 0.5rem 1.5rem;
+      background-color: #3273dc;
+      color: white;
+      border-radius: 4px;
+      text-decoration: none;
+      font-weight: 500;
+      transition: background-color 0.3s;
+      margin-top: 1rem;
+    }
+
+    .dataset-button:hover {
+      background-color: #2366d1;
+      color: white;
+    }
+
+    .dataset-button .icon {
+      margin-right: 0.5rem;
+    }
+  </style>
+</head>
+
+<body>
+  <section class="hero is-light">
+    <div class="hero-body">
+      <div class="container has-text-centered">
+        <h1 class="title">Surgical Scene Segmentation Using Semantic Image Synthesis with a Virtual Surgery
+          Environment</h1>
+        <h2 class="subtitle">Enhanced with Object Size-Aware Random Crop and Background Label Enhancement for
+          Photo-Realistic Synthesis</h2>
+        <div class="authors" style="margin-top: 1rem; color: #6a737d;">
+          <p class="has-text-weight-medium">
+            Jihun Yoon<sup>1</sup>, Bogyu Park<sup>1</sup>, Jiwon Lee<sup>1</sup>, Bokyung Park<sup>1</sup>, Sungjae
+            Kim<sup>1</sup>, SungHyun Park<sup>2</sup>, Woo Jin Hyung<sup>1,2</sup>, and Min-Kook Choi<sup>1</sup>
+          </p>
+          <p style="font-size: 0.9rem; margin-top: 0.5rem;">
+            <sup>1</sup> AI Dev. Group, hutom, Seoul, Republic of Korea<br>
+            <sup>2</sup> Department of Surgery, Yonsei University College of Medicine, Seoul, Republic of Korea
+          </p>
+
+        </div>
+        <div class="publication-date" style="margin-top: 1rem; color: #6a737d; font-size: 0.9rem;">
+          <p>Edited: March 2024</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="padding: 1rem 1.5rem;">
+    <div class="container content">
+      <div class="notification is-light" style="background-color: #f8f9fa; border-left: 4px solid #0366d6;">
+        <p class="has-text-weight-medium" style="color: #2c3e50;">
+          Note: This technical report is an extension and improvement of our previous work published at MICCAI 2022:
+          "<a href="https://conferences.miccai.org/2022/papers/489-Paper2739.html"
+            style="color: #0366d6; text-decoration: underline;">Surgical Scene Segmentation Using Semantic Image
+            Synthesis with a Virtual Surgery Environment</a>."
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <div class="has-text-centered">
+    <a href="https://www.kaggle.com/datasets/yjh4374/sisvse-dataset" class="dataset-button" target="_blank">
+      <span class="icon">
+        <i class="fas fa-download"></i>
+      </span>
+      <span>Download Dataset</span>
+    </a>
+  </div>
+
+  <section class="section" id="overview">
+    <div class="container content">
+      <h2 class="title is-3 section-title">Overview</h2>
+      <div class="figure-container" style="text-align: center; margin: 2rem 0;">
+        <figure class="image">
+          <img src="assets/overview.png" alt="Overview of the proposed method">
+        </figure>
+        <p class="figure-caption" style="color: #6a737d; font-size: 0.9rem; margin-top: 1rem;">
+          Figure 1: Overview of the proposed method for surgical scene segmentation using semantic image synthesis. From
+          our virtual surgical simulation, we automatically generate semantic and instance masks that depict various
+          instruments and organs. These masks are then transformed into photo-realistic training images through a
+          semantic image synthesis model. By training on both the original real data and these synthesized images, our
+          segmentation models learn to better recognize complex surgical scenes, including subtle instrument parts and
+          anatomical structures, in minimally invasive procedures.
+        </p>
+      </div>
+
+      <div class="figure-container" style="text-align: center; margin: 2rem 0;">
+        <figure class="image">
+          <img src="assets/synthesis_examples.png" alt="Qualitative analysis of synthetic images">
+        </figure>
+        <p class="figure-caption" style="color: #6a737d; font-size: 0.9rem; margin-top: 1rem;">
+          Figure 2: Qualitative analysis of synthetic images demonstrating significant improvements in photo-realism
+          achieved by incorporating Object Size-Aware Random Crop (OSRC) and Background Label Enhancement. Here, 'MS'
+          refers to manually synthesized data, 'C' denotes images processed with object size-aware random cropping
+          (OSRC),
+          and 'B' indicates background label enhancement. The examples clearly illustrate that applying OSRC and
+          Background Label Enhancement achieves a superior synthetic result with SPADE.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="introduction">
+    <div class="container content">
+      <h2 class="title is-3 section-title">Introduction</h2>
+      <p>
+        <!-- Introduction -->
+        We introduce <strong>SISVSE</strong>, a large-scale surgical segmentation dataset that unifies real annotated
+        images from robotic distal gastrectomy with extensive, automatically annotated synthetic images. To facilitate
+        the scalable generation of realistic surgical data, we develop a <strong>Virtual Surgery Environment</strong>
+        grounded in actual patient computed tomography (CT) scans and precisely measured robotic/laparoscopic
+        instruments.
+        This environment dramatically reduces manual annotation effort while producing anatomically consistent scene
+        variations. To further narrow the synthetic-to-real gap, we propose <strong>Object Size-Aware Random Crop
+          (OSRC)</strong>, which aligns object scales in synthetic images with those in real surgery footage, and
+        <strong>Background Label Enhancement</strong>, which refines the representation of tissues and surrounding
+        structures, leading to more realistic textural details during semantic image synthesis.
+        further narrow the synthetic-to-real gap, we propose <strong>Object Size-Aware Random Crop (OSRC)</strong>,
+        which aligns
+        object scales in synthetic images with those in real surgery footage, and <strong>Background Label
+          Enhancement</strong>,
+        which refines the representation of tissues and surrounding structures, leading to more realistic textural
+        details during semantic image synthesis.
+      </p>
+      <p>
+        Comprehensive experiments on state-of-the-art instance (Cascade Mask R-CNN and Hybrid Task Cascade) and semantic
+        (DeepLabV3+ and UperNet) segmentation models validate the effectiveness of our framework. Notably, the
+        integration of synthetic data yields substantial improvements in instance segmentation—especially for difficult
+        or underrepresented classes—and comparable or slightly enhanced performance in semantic segmentation. We
+        additionally investigate <strong>domain-randomized synthetic data</strong> with a copy-paste augmentation
+        pipeline, highlighting promising results in instance segmentation, albeit with modest improvements for semantic
+        tasks.
+      </p>
+      <p>
+        By publicly releasing our dataset and detailing our approach, <strong>SISVSE</strong> aims to foster robust
+        model training for robotic and laparoscopic surgery, mitigating the scarcity of richly annotated surgical data.
+        Our proposed methods and open-source resources are readily extensible to other clinical procedures, paving the
+        way for more data-efficient, domain-adaptive solutions in computer-assisted surgical analysis.
+
+      </p>
+    </div>
+  </section>
+
+  <section class="section" id="contribution">
+    <div class="container content">
+      <h2 class="title is-3 section-title">Contribution</h2>
+      <div class="contribution-content">
+        <h3 class="title is-4" style="color: #2c3e50; margin: 2rem 0 1rem;">SISVSE: A Large-Scale Surgical
+          Segmentation Dataset</h3>
+        <p>The work provides a new dataset for surgical scene segmentation, containing both real and automatically
+          annotated synthetic data. By making these resources publicly available, it sets a foundation for extensive
+          research on robotic/laparoscopic gastrectomy and beyond.</p>
+
+        <h3 class="title is-4" style="color: #2c3e50; margin: 2rem 0 1rem;">Virtual Surgery Environment for Data
+          Generation</h3>
+        <p>A novel 3D virtual surgery environment is developed to generate labeled synthetic images at scale. This
+          environment incorporates anatomically realistic organ models (from actual CT scans) and precisely measured
+          surgical instruments, reducing the need for labor-intensive manual annotations.</p>
+
+        <h3 class="title is-4" style="color: #2c3e50; margin: 2rem 0 1rem;">Photo-Realistic Semantic Image
+          Synthesis</h3>
+        <p>The approach leverages recent semantic image synthesis methods (e.g., SPADE and SEAN) to transform purely
+          synthetic segmentation masks into photorealistic training images, bridging the gap between synthetic and
+          real domains more effectively than traditional rendering alone.</p>
+
+        <h3 class="title is-4" style="color: #2c3e50; margin: 2rem 0 1rem;">Object Size-Aware Random Crop (OSRC)</h3>
+        <p>A specialized cropping strategy is introduced that accounts for real-world object-size distributions. By
+          matching the relative size of synthetic objects to those in real images, OSRC yields synthetic scenes that
+          are more similar to actual surgical footage, improving training effectiveness.</p>
+
+        <h3 class="title is-4" style="color: #2c3e50; margin: 2rem 0 1rem;">Background Label Enhancement</h3>
+        <p>Instead of using a single "background" label, the research designates a more fine-grained category, "other
+          anatomical tissues," to represent abdominal walls, fat, and surrounding tissues. This helps synthesis models
+          produce more realistic textures for background regions in surgical images.</p>
+
+        <h3 class="title is-4" style="color: #2c3e50; margin: 2rem 0 1rem;">Comprehensive Evaluation on
+          Segmentation Models</h3>
+        <p>Extensive experiments demonstrate that combining real data with the newly proposed synthetic data
+          significantly boosts instance and semantic segmentation performance—especially for challenging or
+          low-frequency classes. The findings underscore the broader utility of synthetic data in medical imaging.</p>
+
+        <h3 class="title is-4" style="color: #2c3e50; margin: 2rem 0 1rem;">Open Platform for Future Surgical AI
+          Research</h3>
+        <p>By releasing the dataset and detailing the methodology, the authors provide a flexible and extensible
+          framework that can be adapted to other surgical procedures, image-to-image translation methods, and clinical
+          scenarios where large-scale annotated datasets remain scarce.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="methodology">
+    <div class="container content">
+      <h2 class="title is-3 section-title">Methodology</h2>
+
+      <div class="methodology-content">
+        <h3 class="title is-4" style="color: #2c3e50; margin-bottom: 1rem;">Real Surgery Data Curation</h3>
+        <p>
+          We collected 40 real surgical videos of robotic distal gastrectomy performed using the da Vinci Surgical
+          System (dVSS) for gastric cancer. Ethical approval for video acquisition was granted by the institutional
+          review board of the participating medical institution. Alongside these surgical videos, limited demographic
+          and clinical data were obtained, as detailed in Table 1.
+        </p>
+        <p>
+          To rigorously assess the generalization capability of segmentation models, we designed three cross-validation
+          datasets considering demographic and clinical factors, including gender, age, BMI, operation duration, and
+          intraoperative bleeding. Each cross-validation set comprises 30 cases for training and validation, and 10
+          cases for testing.
+        </p>
+
+        <div class="table-container" style="margin: 2rem 0;">
+          <p class="has-text-weight-medium" style="color: #2c3e50; margin-bottom: 1rem;">
+            <strong>Table 1.</strong> Demographic and clinical statistics for 40 cases of distal gastrectomy (real image
+            dataset). All test datasets share similar statistical distributions. <em>(EBL: Estimated Blood Loss; B1:
+              Billroth 1, B2: Billroth 2, R: Roux-en-Y JJ)</em>
+          </p>
+          <table class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth">
+            <thead>
+              <tr>
+                <th>Dataset</th>
+                <th># Videos</th>
+                <th>Gender</th>
+                <th>Age (years)</th>
+                <th>BMI (kg/m²)</th>
+                <th>Operation Time (hh:mm:ss)</th>
+                <th>EBL (ml)</th>
+                <th>Operation Type</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Total</td>
+                <td>40</td>
+                <td>F(19), M(21)</td>
+                <td>61.2±11.8</td>
+                <td>23.1±2.5</td>
+                <td>2h 12m 47s ± 32m 14s</td>
+                <td>33.4±26.5</td>
+                <td>B1(32), B2(5), R(3)</td>
+              </tr>
+              <tr>
+                <td>Test 1</td>
+                <td>10</td>
+                <td>F(5), M(5)</td>
+                <td>66.9±12.3</td>
+                <td>22.9±3.1</td>
+                <td>2h 24m 45s ± 41m 40s</td>
+                <td>42.7±39.0</td>
+                <td>B1(9), B2(1), R(0)</td>
+              </tr>
+              <tr>
+                <td>Test 2</td>
+                <td>10</td>
+                <td>F(5), M(5)</td>
+                <td>60.6±8.5</td>
+                <td>23.2±1.7</td>
+                <td>2h 10m 51s ± 27m 45s</td>
+                <td>33.3±27.0</td>
+                <td>B1(8), B2(1), R(1)</td>
+              </tr>
+              <tr>
+                <td>Test 3</td>
+                <td>10</td>
+                <td>F(5), M(5)</td>
+                <td>59.4±13.7</td>
+                <td>23.7±2.6</td>
+                <td>2h 06m 35s ± 35m 05s</td>
+                <td>36.5±17.1</td>
+                <td>B1(5), B2(3), R(2)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 class="title is-4" style="color: #2c3e50; margin: 2rem 0 1rem;">Categories</h3>
+        <p>
+          The dataset covers five organ classes (Gallbladder, Liver, Pancreas, Spleen, and Stomach) and 13 frequently
+          utilized surgical instruments: Harmonic Ace (HA), Stapler (S), Cadiere Forceps (CF), Maryland Bipolar Forceps
+          (MBF), Medium-large Clip Applier (MCA), Small Clip Applier (SCA), Curved Atraumatic Grasper (CAG), Suction
+          Irrigation (SI), Drain Tube (DT), EndoTip (ET), Needle (ND), Specimen Bag (SB), and Gauze (GZ). Anatomical
+          structures such as abdominal walls, omentum, and fat are grouped into "other anatomical tissues" (OAT), and
+          minor surgical instruments are classified as "other instruments" (OI). Instruments were further segmented by
+          anatomical structure into head (H), wrist (W), and body (B), resulting in 24 distinct instrument categories.
+        </p>
+
+        <h3 class="title is-4" style="color: #2c3e50; margin: 2rem 0 1rem;">Class-Balanced Frame Sampling</h3>
+        <p>
+          Class imbalance is a critical challenge in surgical video analysis [Yoon et al., 2020]. While conventional
+          strategies focus primarily on loss function modifications and data augmentation, we introduce a class-balanced
+          frame sampling technique during dataset construction. By systematically selecting key frames from the surgical
+          videos, we ensure balanced representation of each instrument and organ category, facilitating robust network
+          training and reducing redundant labeling. Statistical details are provided in Table 12.
+        </p>
+
+        <h3 class="title is-4" style="color: #2c3e50; margin: 2rem 0 1rem;">Virtual Surgery Environment and Synthetic
+          Data</h3>
+        <p>
+          We developed a virtual surgery environment to generate large-scale annotated synthetic data and synthesize
+          photo-realistic surgical images. To optimize resource efficiency, we utilized a single patient's abdominal
+          computed tomography (CT) data not overlapping with our real dataset. Five organs were meticulously segmented
+          from CT scans, and accurate 3D anatomical models were reconstructed using VTK [Schroeder et al., 2006].
+          Annotations were cross-verified by two radiologic technologists and subsequently validated by an expert
+          radiologist with over 10 years of experience.
+        </p>
+        <p>
+          Robotic and laparoscopic instruments were accurately modeled using precise measurements and commercial
+          software (e.g., 3DMax, ZBrush, Substance 3D Painter). These models were integrated into Unity to create
+          interactive simulations replicating robotic surgical interactions. Realistic camera parameters were
+          implemented based on the actual dVSS endoscope configuration. During simulation, scenes were captured as 2D
+          images paired automatically with corresponding segmentation masks, generating a comprehensive synthetic
+          dataset.
+        </p>
+
+        <h3 class="title is-4" style="color: #2c3e50; margin: 2rem 0 1rem;">High-Quality Annotations for Real and
+          Synthetic Data</h3>
+        <p>
+          Seven trained annotators labeled six organs and 14 instrument types (further subdivided into 24 categories)
+          using the CVAT annotation tool [Intel Corporation, 2019]. Three medical experts validated annotations to
+          ensure quality and accuracy, resulting in the real data (R). Three clinical experts conducted manual
+          simulations in the virtual environment to produce manually synthesized synthetic data (MS). Additionally,
+          domain-randomized synthetic data (DRS) were generated via automatic scene randomization [Tremblay et al.,
+          2018], expanding data diversity.
+        </p>
+
+        <h3 class="title is-4" style="color: #2c3e50; margin: 2rem 0 1rem;">Semantic Image Synthesis</h3>
+        <p>
+          We synthesized photo-realistic surgical images from synthetic segmentation masks using semantic image
+          synthesis models, specifically SPADE [Park et al., 2019], SEAN [Zhu et al., 2020], and SRC [Jung et al.,
+          2022]. Synthetic data generated from the virtual environment in previous studies [Yoon et al., 2022] was
+          directly utilized without additional modifications, resulting in variable image quality due to differences in
+          camera viewpoints and object depths. To address this, we also applied Object Size-Aware Random Crop (OSRC) and
+          Background Label Enhancement.
+        </p>
+
+        <h3 class="title is-4" style="color: #2c3e50; margin: 2rem 0 1rem;">Object Size-Aware Random Crop (OSRC)</h3>
+        <p>
+          We introduced an object size-aware random crop (OSRC) strategy to enhance the realism and generalization
+          capability of synthetic images. OSRC ensures that object sizes in synthetic images closely match those
+          observed in real surgical footage. The detailed procedure is as follows:
+        </p>
+        <ol style="margin-left: 2rem; margin-bottom: 1rem;">
+          <li><strong>Calculate real object size ratio (r<sub>real</sub>)</strong>: r<sub>real</sub> = Area<sub>object
+              (real)</sub> / Area<sub>image (real)</sub></li>
+          <li><strong>Calculate synthetic object size ratio (r<sub>syn</sub>)</strong>: r<sub>syn</sub> =
+            Area<sub>object (synthetic)</sub> / Area<sub>image (synthetic)</sub></li>
+          <li><strong>Randomly sample a target ratio (r<sub>target</sub>) from the real ratio distribution</strong>:
+            r<sub>target</sub> ∼ {r<sub>real</sub>}</li>
+          <li><strong>Compute scale factor (s) for cropping</strong>: s = √(r<sub>target</sub> / r<sub>syn</sub>)</li>
+        </ol>
+        <p>
+          The cropping region is then determined by applying the scale factor around the object's center, resulting in
+          realistic object scale representations in synthetic images. This method significantly reduces the domain gap
+          and enhances synthetic data's effectiveness in segmentation model training.
+        </p>
+
+        <h3 class="title is-4" style="color: #2c3e50; margin: 2rem 0 1rem;">Background Label Enhancement</h3>
+        <p>
+          Another significant improvement involves redefining background regions. In previous studies [Yoon et al.,
+          2022], pixels not belonging to instruments or organs were assigned to a general "background" class. However,
+          semantic image synthesis models frequently struggled to produce realistic textures in these areas. To resolve
+          this, we introduced a refined category, "other anatomical tissues," explicitly representing abdominal walls,
+          fat, and other surrounding tissues. This refinement significantly enhances the realism and texture consistency
+          in synthesized images, as demonstrated in Figure 2.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="experiments">
+    <div class="container content">
+      <h2 class="title is-3 section-title">Experiments</h2>
+      <p>
+        We investigated the impact of synthetic training data on instance and semantic segmentation performance.
+        Specifically, we evaluated two categories of synthetic data—<strong>manually synthesized (MS)</strong> and
+        <strong>domain-randomized synthetic (DRS)</strong>—using three semantic synthesis models:
+        <strong>SPADE</strong>, <strong>SEAN</strong>, and <strong>SRC</strong>. In contrast to our previous work, we
+        additionally explored the efficacy of the <strong>SRC</strong> model in performing unsupervised image-to-image
+        translation to generate photo-realistic synthetic training images.
+      </p>
+
+      <h3 class="title is-4" style="color: #2c3e50; margin: 2rem 0 1rem;">Implementation Details</h3>
+      <p>
+        We utilized MMDetection v3.2.0 [Chen et al., 2019b] and MMSegmentation v1.2.2 [MMSegmentation Contributors,
+        2020], built upon MMCV v1.2.0, MMEngine v0.10.3, PyTorch v2.1.2, and TorchVision v0.16.2, representing the
+        latest available versions at the time of writing. For image synthesis, software versions were consistent with
+        those in prior studies. Notably, updates to these major packages introduced deviations from previous findings
+        [Yoon et al., 2022]. To ensure reproducibility and mitigate randomness-induced variability, a fixed random seed
+        was used throughout all training and evaluation procedures.
+      </p>
+      <p>
+        All segmentation models incorporating real and synthetic data were trained for 40 epochs. For fairness, training
+        epochs for models utilizing only real data were adjusted to match the total number of iterations experienced by
+        models trained with combined real and synthetic data. The best-performing checkpoint was selected as the
+        representative model from each training run. Synthetic data-trained models typically reached optimal performance
+        around epoch 34, confirming no additional performance gains beyond 40 epochs. Detailed hyperparameters are
+        provided in Table 12.
+      </p>
+      <p>
+        Manual synthetic (MS) data generation initially produced 3400 images. Subsequently, images containing objects
+        (instrument head or entire instrument) below a pixel threshold of 10,900 were excluded. Applying Object
+        Size-aware Random Crop (OSRC), we generated the MS+C dataset. OSRC utilized a fixed random seed (0) and targeted
+        object size ratios within the median to 75th percentile range of real object distributions, determined
+        empirically. Further refinement by reassigning the background class to "other anatomical tissues" resulted in
+        the MS+C+B dataset. Each MS dataset variant was photo-realistically synthesized using SPADE, SEAN, and SRC
+        models, denoted as ModelName(MS+...). These synthesized datasets were combined with real training data (R) as
+        R+ModelName(MS+...) for subsequent training.
+      </p>
+      <p>
+        Domain-randomized synthetic (DRS) data production generated 4474 images. Initially applying OSRC, we then
+        eliminated images containing objects with a size ratio below 0.0005. Using identical random seed and size
+        distribution parameters as in MS data, the refined DRS data served as sources for copy-paste augmentation. To
+        streamline the process, augmentation via copy-paste and subsequent photo-realistic synthesis were performed
+        offline, with augmented images and masks stored before training. Half of the training dataset comprised
+        augmented copy-paste (CP) data combined from real and DRS masks, and half consisted of original real data,
+        denoted as R+ModelName(R+DRS+...+CP). For comparative analysis, we also generated a baseline dataset synthesized
+        exclusively from real masks, labeled as R+ModelName(R+CP). Detailed statistics of domain-randomized data
+        utilized in copy-paste augmentation are summarized in Table 11.
+      </p>
+
+      <h3 class="title is-4" style="color: #2c3e50; margin: 2rem 0 1rem;">Relative Performance Improvement</h3>
+      <p>
+        To quantitatively measure the benefit provided by synthetic data relative to real data, we propose a metric
+        termed <strong>Relative Performance Improvement</strong>. Specifically, the Relative performance improvement
+        metric is defined as:
+      </p>
+      <p style="text-align: center; margin: 1rem 0;">
+        Relative Metric = (Metric<sub>R+Syn</sub> - Metric<sub>R</sub>) / Metric<sub>R</sub>
+      </p>
+      <p>
+        where the metric can be AP, IoU, or Accuracy. By calculating this ratio, we explicitly assess the relative
+        performance gains attributable to synthetic data augmentation, denoted as <strong>Relative AP</strong>,
+        <strong>Relative IoU</strong>, and <strong>Relative Acc</strong>.
+      </p>
+
+      <h3 class="title is-4" style="color: #2c3e50; margin: 2rem 0 1rem;">Instance Segmentation with Manual Synthetic
+        Data</h3>
+      <p>
+        To quantitatively evaluate segmentation performance, we employed two state-of-the-art segmentation models,
+        <strong>Cascade Mask R-CNN (CMR)</strong> and <strong>Hybrid Task Cascade (HTC)</strong>, and assessed their
+        bounding box and mask performance using mean average precision (<strong>box mAP</strong> and <strong>mask
+          mAP</strong>) as defined by the MS-COCO benchmark [Lin et al., 2014]. Additionally, we calculated mean
+        Relative Average Precision (<strong>box mRAP</strong> and <strong>mask mRAP</strong>) to explicitly measure the
+        relative performance enhancement achieved by synthetic data augmentation compared to real data alone.
+      </p>
+      <p>
+        As summarized in Table 2, incorporating synthetic data consistently improved the mean box AP across both CMR and
+        HTC models. However, mask AP improvement was less consistent. Notably, the best overall performances were
+        achieved using the <strong>R+SPADE(MS+C+B)</strong> dataset, yielding the highest mean box AP of
+        <strong>54.92</strong> and mask AP of <strong>50.04</strong> for CMR.
+      </p>
+      <p>
+        A detailed class-specific analysis in Table 3 highlights results that differ substantially from the aggregate
+        performance. Specifically, Table 3 presents the top 10 and bottom 10 classes based on performance improvements
+        for instrument detection using the CMR model trained on the <strong>R+SPADE(MS+C+B)</strong> dataset. This
+        reveals significant class-specific variations, emphasizing the necessity of detailed, class-level analysis
+        beyond aggregated metrics.
+      </p>
+
+      <div class="table-container" style="margin: 2rem 0;">
+        <p class="has-text-weight-medium" style="color: #2c3e50; margin-bottom: 1rem;">
+          <strong>Table 2.</strong> Performance metrics (mean mAP ± standard deviation) for <strong>Cascade Mask R-CNN
+            (CMR)</strong> and <strong>Hybrid Task Cascade (HTC)</strong> trained on manual synthetic (MS) datasets.
+          Best performance for each model is indicated in bold.
+        </p>
+        <table class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth">
+          <thead>
+            <tr>
+              <th>Model</th>
+              <th>Dataset</th>
+              <th>Box mAP (Mean ± Std.)</th>
+              <th>Mask mAP (Mean ± Std.)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td rowspan="7"><strong>Cascade Mask R-CNN (CMR)</strong></td>
+              <td>R</td>
+              <td>53.93 ± 0.98</td>
+              <td>49.75 ± 1.05</td>
+            </tr>
+            <tr>
+              <td>R+SEAN(MS)</td>
+              <td>54.32 ± 1.25</td>
+              <td>49.00 ± 1.22</td>
+            </tr>
+            <tr>
+              <td>R+SPADE(MS)</td>
+              <td>54.31 ± 1.43</td>
+              <td>48.98 ± 1.41</td>
+            </tr>
+            <tr>
+              <td>R+SEAN(MS+C)</td>
+              <td>54.69 ± 1.19</td>
+              <td>49.46 ± 1.23</td>
+            </tr>
+            <tr>
+              <td>R+SPADE(MS+C)</td>
+              <td>54.82 ± 1.38</td>
+              <td>49.58 ± 1.46</td>
+            </tr>
+            <tr>
+              <td>R+SEAN(MS+C+B)</td>
+              <td>54.89 ± 0.97</td>
+              <td>49.55 ± 1.10</td>
+            </tr>
+            <tr>
+              <td>R+SPADE(MS+C+B)</td>
+              <td><strong>54.92 ± 1.04</strong></td>
+              <td><strong>50.04 ± 1.07</strong></td>
+            </tr>
+            <tr>
+              <td rowspan="7"><strong>Hybrid Task Cascade (HTC)</strong></td>
+              <td>R</td>
+              <td>55.06 ± 0.86</td>
+              <td>51.67 ± 0.56</td>
+            </tr>
+            <tr>
+              <td>R+SEAN(MS)</td>
+              <td>55.55 ± 1.34</td>
+              <td>50.95 ± 1.08</td>
+            </tr>
+            <tr>
+              <td>R+SPADE(MS)</td>
+              <td>55.51 ± 0.77</td>
+              <td>50.88 ± 1.05</td>
+            </tr>
+            <tr>
+              <td>R+SEAN(MS+C)</td>
+              <td>56.09 ± 0.78</td>
+              <td>51.44 ± 0.97</td>
+            </tr>
+            <tr>
+              <td>R+SPADE(MS+C)</td>
+              <td>56.23 ± 1.08</td>
+              <td>51.40 ± 1.22</td>
+            </tr>
+            <tr>
+              <td>R+SEAN(MS+C+B)</td>
+              <td>56.20 ± 0.93</td>
+              <td>51.37 ± 1.13</td>
+            </tr>
+            <tr>
+              <td>R+SPADE(MS+C+B)</td>
+              <td><strong>56.36 ± 0.94</strong></td>
+              <td><strong>51.77 ± 1.04</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="table-container" style="margin: 2rem 0;">
+        <p class="has-text-weight-medium" style="color: #2c3e50; margin-bottom: 1rem;">
+          <strong>Table 3.</strong> Relative performance improvements (%) of Cascade Mask R-CNN using synthetic data
+          (<strong>R+SPADE(MS+C+B)</strong>) compared to real data alone across three cross-validation sets. The top 10
+          classes with the greatest improvement and the bottom 10 classes with the least improvement are shown.
+        </p>
+        <table class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth">
+          <thead>
+            <tr>
+              <th>Category (Top 10)</th>
+              <th>Real Box mAP</th>
+              <th>Relative Box mAP</th>
+              <th>Real Mask mAP</th>
+              <th>Relative Mask mAP</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>DT</td>
+              <td>20.90</td>
+              <td>+23.29</td>
+              <td>27.20</td>
+              <td>+5.88</td>
+            </tr>
+            <tr>
+              <td>ND</td>
+              <td>31.10</td>
+              <td>+18.11</td>
+              <td>6.93</td>
+              <td>-0.96</td>
+            </tr>
+            <tr>
+              <td>Liver</td>
+              <td>32.33</td>
+              <td>+15.15</td>
+              <td>39.07</td>
+              <td>+7.08</td>
+            </tr>
+            <tr>
+              <td>CAG_H</td>
+              <td>14.07</td>
+              <td>+11.37</td>
+              <td>10.47</td>
+              <td>+8.92</td>
+            </tr>
+            <tr>
+              <td>SB</td>
+              <td>41.70</td>
+              <td>+10.23</td>
+              <td>38.73</td>
+              <td>+4.13</td>
+            </tr>
+            <tr>
+              <td>GZ</td>
+              <td>34.00</td>
+              <td>+8.43</td>
+              <td>46.10</td>
+              <td>+1.81</td>
+            </tr>
+            <tr>
+              <td>Spleen</td>
+              <td>26.13</td>
+              <td>+7.78</td>
+              <td>30.63</td>
+              <td>+5.88</td>
+            </tr>
+            <tr>
+              <td>Pancreas</td>
+              <td>27.30</td>
+              <td>+7.69</td>
+              <td>27.60</td>
+              <td>+11.71</td>
+            </tr>
+            <tr>
+              <td>Stomach</td>
+              <td>41.83</td>
+              <td>+7.09</td>
+              <td>47.40</td>
+              <td>+4.57</td>
+            </tr>
+            <tr>
+              <td>S_H</td>
+              <td>57.17</td>
+              <td>+6.88</td>
+              <td>53.00</td>
+              <td>+1.51</td>
+            </tr>
+          </tbody>
+        </table>
+        <table class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth" style="margin-top: 1rem;">
+          <thead>
+            <tr>
+              <th>Category (Bottom 10)</th>
+              <th>Real Box mAP</th>
+              <th>Relative Box mAP</th>
+              <th>Real Mask mAP</th>
+              <th>Relative Mask mAP</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>SCA_W</td>
+              <td>83.07</td>
+              <td>-0.48</td>
+              <td>83.10</td>
+              <td>-0.84</td>
+            </tr>
+            <tr>
+              <td>HA_B</td>
+              <td>70.43</td>
+              <td>-0.62</td>
+              <td>64.97</td>
+              <td>-1.03</td>
+            </tr>
+            <tr>
+              <td>CF_W</td>
+              <td>65.47</td>
+              <td>-0.81</td>
+              <td>58.27</td>
+              <td>+0.11</td>
+            </tr>
+            <tr>
+              <td>MLCA_B</td>
+              <td>69.33</td>
+              <td>-1.49</td>
+              <td>67.90</td>
+              <td>-2.16</td>
+            </tr>
+            <tr>
+              <td>S_B</td>
+              <td>42.07</td>
+              <td>-1.66</td>
+              <td>39.63</td>
+              <td>+3.36</td>
+            </tr>
+            <tr>
+              <td>SCA_B</td>
+              <td>82.10</td>
+              <td>-1.66</td>
+              <td>77.07</td>
+              <td>+0.74</td>
+            </tr>
+            <tr>
+              <td>HA_H</td>
+              <td>53.80</td>
+              <td>-1.80</td>
+              <td>32.43</td>
+              <td>-3.08</td>
+            </tr>
+            <tr>
+              <td>SI</td>
+              <td>73.47</td>
+              <td>-2.27</td>
+              <td>71.30</td>
+              <td>-3.04</td>
+            </tr>
+            <tr>
+              <td>MLCA_W</td>
+              <td>76.40</td>
+              <td>-2.79</td>
+              <td>68.30</td>
+              <td>-0.29</td>
+            </tr>
+            <tr>
+              <td>MLCA_H</td>
+              <td>68.20</td>
+              <td>-4.30</td>
+              <td>55.77</td>
+              <td>-2.51</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="title is-4" style="color: #2c3e50; margin: 2rem 0 1rem;">Semantic Segmentation with Manual Synthetic
+        Data</h3>
+      <p>
+        We evaluated semantic segmentation performance using two representative models, <strong>DeepLabV3+</strong> and
+        <strong>UperNet</strong>, employing standard metrics including mean Intersection-over-Union
+        (<strong>mIoU</strong>) and mean Accuracy (<strong>mAcc</strong>). Additionally, we introduced <strong>mean
+          Relative IoU (mRIoU)</strong> and <strong>mean Relative Accuracy (mRAcc)</strong> metrics, analogous to those
+        used in our instance segmentation evaluation, to quantitatively assess improvements from synthetic data
+        augmentation.
+      </p>
+      <p>
+        Table 4 summarizes semantic segmentation results across synthetic datasets. Interestingly, uncropped synthetic
+        datasets generally outperformed cropped variants, contrasting the instance segmentation findings. Among
+        synthetic data combinations, <strong>R+SPADE(MS+C+B)</strong> achieved the highest performance for both
+        segmentation models. We attribute the observed lower relative improvements compared to instance segmentation to
+        the already high baseline performance obtained with the real dataset alone (e.g., 74.63 Mean mIoU with UperNet).
+      </p>
+      <p>
+        A more detailed analysis of class-level performances (Table 5) for semantic segmentation using UperNet trained
+        on <strong>R+SPADE(MS+C+B)</strong> highlights notably smaller relative gains compared to instance segmentation.
+        This is primarily due to the already high baseline accuracy for the top-performing classes. Furthermore, unlike
+        instance segmentation, all uncropped synthetic datasets consistently outperformed cropped ones, indicating
+        task-dependent sensitivity to cropping strategies.
+      </p>
+
+      <div class="table-container" style="margin: 2rem 0;">
+        <p class="has-text-weight-medium" style="color: #2c3e50; margin-bottom: 1rem;">
+          <strong>Table 4.</strong> Performance metrics (Mean ± Std.) for <strong>UperNet (UPN)</strong> and
+          <strong>DeepLabV3+ (DLV3+)</strong> trained on manual synthetic (MS) datasets across three cross-validation
+          datasets. Best performance for each model is indicated in bold.
+        </p>
+        <table class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth">
+          <thead>
+            <tr>
+              <th>Model</th>
+              <th>Dataset</th>
+              <th>Mean mIoU (± Std.)</th>
+              <th>Mean mAcc (± Std.)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td rowspan="7"><strong>UperNet (UPN)</strong></td>
+              <td>R</td>
+              <td>74.63 ± 1.04</td>
+              <td>83.35 ± 0.86</td>
+            </tr>
+            <tr>
+              <td>R+SEAN(MS)</td>
+              <td>72.87 ± 0.77</td>
+              <td>82.10 ± 0.87</td>
+            </tr>
+            <tr>
+              <td>R+SPADE(MS)</td>
+              <td><strong>73.42 ± 0.90</strong></td>
+              <td><strong>82.60 ± 0.72</strong></td>
+            </tr>
+            <tr>
+              <td>R+SEAN(MS+C)</td>
+              <td>72.74 ± 0.97</td>
+              <td>82.05 ± 0.69</td>
+            </tr>
+            <tr>
+              <td>R+SPADE(MS+C)</td>
+              <td>73.16 ± 1.32</td>
+              <td>82.49 ± 1.10</td>
+            </tr>
+            <tr>
+              <td>R+SEAN(MS+C+B)</td>
+              <td>72.44 ± 0.90</td>
+              <td>81.93 ± 0.65</td>
+            </tr>
+            <tr>
+              <td>R+SPADE(MS+C+B)</td>
+              <td>72.60 ± 1.25</td>
+              <td>81.99 ± 0.89</td>
+            </tr>
+            <tr>
+              <td rowspan="7"><strong>DeepLabV3+ (DLV3+)</strong></td>
+              <td>R</td>
+              <td>74.62 ± 0.84</td>
+              <td>83.65 ± 0.74</td>
+            </tr>
+            <tr>
+              <td>R+SEAN(MS)</td>
+              <td>72.71 ± 0.90</td>
+              <td>82.10 ± 0.65</td>
+            </tr>
+            <tr>
+              <td>R+SPADE(MS)</td>
+              <td><strong>73.18 ± 0.97</strong></td>
+              <td><strong>82.53 ± 0.93</strong></td>
+            </tr>
+            <tr>
+              <td>R+SEAN(MS+C)</td>
+              <td>72.04 ± 1.31</td>
+              <td>81.84 ± 1.26</td>
+            </tr>
+            <tr>
+              <td>R+SPADE(MS+C)</td>
+              <td>72.56 ± 1.30</td>
+              <td>82.14 ± 1.10</td>
+            </tr>
+            <tr>
+              <td>R+SEAN(MS+C+B)</td>
+              <td>71.70 ± 0.78</td>
+              <td>81.62 ± 0.87</td>
+            </tr>
+            <tr>
+              <td>R+SPADE(MS+C+B)</td>
+              <td>72.07 ± 0.86</td>
+              <td>81.81 ± 0.94</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="table-container" style="margin: 2rem 0;">
+        <p class="has-text-weight-medium" style="color: #2c3e50; margin-bottom: 1rem;">
+          <strong>Table 5.</strong> Relative performance improvements (%) for UperNet trained on
+          <strong>R+SPADE(MS)</strong> compared to the R dataset across three cross-validation datasets. The top 10 and
+          bottom 10 classes based on mean IoU (mIoU) are listed.
+        </p>
+        <table class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth">
+          <thead>
+            <tr>
+              <th>Category (Top 10)</th>
+              <th>Real Mean mIoU</th>
+              <th>Relative Mean mIoU (%)</th>
+              <th>Real Mean mAcc</th>
+              <th>Relative Mean mAcc (%)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Spleen</td>
+              <td>31.23</td>
+              <td>+3.10</td>
+              <td>35.65</td>
+              <td>+3.73</td>
+            </tr>
+            <tr>
+              <td>Pancreas</td>
+              <td>56.54</td>
+              <td>+1.73</td>
+              <td>69.04</td>
+              <td>+1.50</td>
+            </tr>
+            <tr>
+              <td>Gallbladder</td>
+              <td>59.93</td>
+              <td>+0.91</td>
+              <td>66.01</td>
+              <td>+2.06</td>
+            </tr>
+            <tr>
+              <td>Stomach</td>
+              <td>67.03</td>
+              <td>+0.26</td>
+              <td>84.97</td>
+              <td>+0.36</td>
+            </tr>
+            <tr>
+              <td>SCA_B</td>
+              <td>80.75</td>
+              <td>+0.14</td>
+              <td>86.37</td>
+              <td>+0.34</td>
+            </tr>
+            <tr>
+              <td>TO_T</td>
+              <td>82.85</td>
+              <td>-0.06</td>
+              <td>92.26</td>
+              <td>-0.42</td>
+            </tr>
+            <tr>
+              <td>GZ</td>
+              <td>92.96</td>
+              <td>-0.20</td>
+              <td>96.41</td>
+              <td>0.00</td>
+            </tr>
+            <tr>
+              <td>ET</td>
+              <td>91.69</td>
+              <td>-0.27</td>
+              <td>97.69</td>
+              <td>-0.13</td>
+            </tr>
+            <tr>
+              <td>Liver</td>
+              <td>78.33</td>
+              <td>-0.28</td>
+              <td>87.50</td>
+              <td>+0.38</td>
+            </tr>
+            <tr>
+              <td>SCA_W</td>
+              <td>88.27</td>
+              <td>-0.42</td>
+              <td>93.49</td>
+              <td>-0.07</td>
+            </tr>
+          </tbody>
+        </table>
+        <table class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth" style="margin-top: 1rem;">
+          <thead>
+            <tr>
+              <th>Category (Bottom 10)</th>
+              <th>Real Mean mIoU</th>
+              <th>Relative Mean mIoU (%)</th>
+              <th>Real Mean mAcc</th>
+              <th>Relative Mean mAcc (%)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>MBF_B</td>
+              <td>73.83</td>
+              <td>-2.46</td>
+              <td>84.21</td>
+              <td>-2.49</td>
+            </tr>
+            <tr>
+              <td>SCA_H</td>
+              <td>84.40</td>
+              <td>-2.79</td>
+              <td>84.42</td>
+              <td>-2.27</td>
+            </tr>
+            <tr>
+              <td>S_H</td>
+              <td>81.78</td>
+              <td>-2.93</td>
+              <td>89.56</td>
+              <td>-0.35</td>
+            </tr>
+            <tr>
+              <td>SI</td>
+              <td>75.20</td>
+              <td>-3.08</td>
+              <td>81.52</td>
+              <td>-2.51</td>
+            </tr>
+            <tr>
+              <td>ND</td>
+              <td>57.32</td>
+              <td>-3.39</td>
+              <td>69.86</td>
+              <td>-2.54</td>
+            </tr>
+            <tr>
+              <td>CF_W</td>
+              <td>76.53</td>
+              <td>-3.60</td>
+              <td>87.67</td>
+              <td>-2.60</td>
+            </tr>
+            <tr>
+              <td>MLCA_H</td>
+              <td>79.54</td>
+              <td>-4.08</td>
+              <td>89.39</td>
+              <td>-1.72</td>
+            </tr>
+            <tr>
+              <td>HA_H</td>
+              <td>65.67</td>
+              <td>-4.33</td>
+              <td>78.38</td>
+              <td>-2.60</td>
+            </tr>
+            <tr>
+              <td>S_B</td>
+              <td>78.43</td>
+              <td>-4.93</td>
+              <td>85.67</td>
+              <td>-3.47</td>
+            </tr>
+            <tr>
+              <td>CAG_H</td>
+              <td>41.10</td>
+              <td>-7.40</td>
+              <td>52.22</td>
+              <td>-3.04</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="title is-4" style="color: #2c3e50; margin: 2rem 0 1rem;">Domain Randomized Synthetic Data</h3>
+      <p>
+        Tables 6 and 7 summarize results obtained using <strong>domain-randomized synthetic (DRS)</strong> data as a
+        source for copy-paste (CP) augmentation across segmentation models. Our results demonstrate that DRS-based
+        copy-paste consistently improves performance for instance segmentation models, as evidenced by increased box and
+        mask AP scores. However, when extending this augmentation method to semantic segmentation, no performance gains
+        were observed. We hypothesize that the lack of improvement in semantic segmentation models is primarily due to
+        their already strong baseline performance with real data, limiting the potential effectiveness of the additional
+        synthetic augmentation.
+      </p>
+
+      <div class="table-container" style="margin: 2rem 0;">
+        <p class="has-text-weight-medium" style="color: #2c3e50; margin-bottom: 1rem;">
+          <strong>Table 6.</strong> Performance metrics (Mean ± Std.) of <strong>Cascade Mask R-CNN (CMR)</strong> and
+          <strong>Hybrid Task Cascade (HTC)</strong> trained using domain-randomized synthetic (DRS) datasets combined
+          with the copy-paste (CP) augmentation strategy across three cross-validation datasets. Best results are
+          highlighted in bold.
+        </p>
+        <table class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth">
+          <thead>
+            <tr>
+              <th>Model</th>
+              <th>Dataset</th>
+              <th>Box Mean mAP (± Std.)</th>
+              <th>Mask Mean mAP (± Std.)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Cascade Mask R-CNN (CMR)</strong></td>
+              <td>R+SPADE(R+CP)</td>
+              <td>58.09 ± 0.91</td>
+              <td>50.86 ± 1.06</td>
+            </tr>
+            <tr>
+              <td></td>
+              <td>R+SPADE(R+DRS+C+B+CP)</td>
+              <td><strong>58.18 ± 0.67</strong></td>
+              <td><strong>51.10 ± 0.97</strong></td>
+            </tr>
+            <tr>
+              <td><strong>Hybrid Task Cascade (HTC)</strong></td>
+              <td>R+SPADE(R+CP)</td>
+              <td>59.68 ± 0.65</td>
+              <td><strong>52.96 ± 0.89</strong></td>
+            </tr>
+            <tr>
+              <td></td>
+              <td>R+SPADE(R+DRS+C+B+CP)</td>
+              <td><strong>59.68 ± 0.75</strong></td>
+              <td>52.95 ± 0.96</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="table-container" style="margin: 2rem 0;">
+        <p class="has-text-weight-medium" style="color: #2c3e50; margin-bottom: 1rem;">
+          <strong>Table 7.</strong> Performance metrics (mean ± std.) for <strong>UperNet (UPN)</strong> and
+          <strong>DeepLabV3+ (DLV3+)</strong> models using copy-paste augmentation with Domain Randomized Synthetic
+          (DRS) dataset. Metrics are averaged over three cross-validation datasets. Best results are highlighted in
+          bold.
+        </p>
+        <table class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth">
+          <thead>
+            <tr>
+              <th>Model</th>
+              <th>Dataset</th>
+              <th>Mean mIoU (± Std.)</th>
+              <th>Mean mAcc (± Std.)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>UperNet (UPN)</strong></td>
+              <td>R+SPADE(R+CP)</td>
+              <td><strong>70.26 ± 1.08</strong></td>
+              <td><strong>80.17 ± 0.78</strong></td>
+            </tr>
+            <tr>
+              <td></td>
+              <td>R+SPADE(R+DRS+C+B+CP)</td>
+              <td>70.08 ± 0.99</td>
+              <td>80.02 ± 0.74</td>
+            </tr>
+            <tr>
+              <td><strong>DeepLabV3+ (DLV3+)</strong></td>
+              <td>R+SPADE(R+CP)</td>
+              <td><strong>72.39 ± 4.05</strong></td>
+              <td><strong>82.31 ± 3.15</strong></td>
+            </tr>
+            <tr>
+              <td></td>
+              <td>R+SPADE(R+DRS+C+B+CP)</td>
+              <td>69.46 ± 1.02</td>
+              <td>79.88 ± 0.85</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="title is-4" style="color: #2c3e50; margin: 2rem 0 1rem;">Real Data Size vs. Synthetic Data
+        Effectiveness</h3>
+      <p>
+        Tables 8 and 9 present segmentation results obtained using a reduced-size real dataset (<strong>R1(H)</strong>,
+        half-sized dataset for cross-validation set 1) combined with a full-scale synthetic dataset. Unlike previous
+        results shown in Table 2, where the CMR model achieved the best performance using
+        <strong>SPADE(MS+C+B)</strong>, here the highest improvement in mAP was obtained with
+        <strong>SPADE(MS+C)</strong> data. Interestingly, despite a reduced real-data baseline, semantic segmentation
+        models (<strong>UperNet</strong> and <strong>DeepLabV3+</strong>) maintained robust performance (~71 mIoU) even
+        without synthetic augmentation, and thus no overall improvements were observed when incorporating synthetic
+        data. This indicates semantic segmentation models are less sensitive to synthetic data augmentation in scenarios
+        with moderately reduced training data. Future work will further investigate scenarios with significantly smaller
+        real training datasets.
+      </p>
+
+      <div class="table-container" style="margin: 2rem 0;">
+        <p class="has-text-weight-medium" style="color: #2c3e50; margin-bottom: 1rem;">
+          <strong>Table 8.</strong> Performance metrics (box mAP and mask mAP) for <strong>Cascade Mask R-CNN
+            (CMR)</strong> and <strong>Hybrid Task Cascade (HTC)</strong> trained on Manual Synthetic (MS) datasets
+          combined with half-sized real data (H). The highest performance per model is highlighted in bold.
+        </p>
+        <table class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth">
+          <thead>
+            <tr>
+              <th>Model</th>
+              <th>Dataset</th>
+              <th>Box mAP</th>
+              <th>Mask mAP</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td rowspan="7"><strong>Cascade Mask R-CNN (CMR)</strong></td>
+              <td>R1(H)</td>
+              <td>49.14</td>
+              <td>44.38</td>
+            </tr>
+            <tr>
+              <td>R1(H)+SEAN(MS)</td>
+              <td>49.36</td>
+              <td>43.19</td>
+            </tr>
+            <tr>
+              <td>R1(H)+SPADE(MS)</td>
+              <td>50.74</td>
+              <td>44.04</td>
+            </tr>
+            <tr>
+              <td>R1(H)+SEAN(MS+C)</td>
+              <td>50.51</td>
+              <td>44.45</td>
+            </tr>
+            <tr>
+              <td>R1(H)+SPADE(MS+C)</td>
+              <td><strong>51.40</strong></td>
+              <td><strong>44.93</strong></td>
+            </tr>
+            <tr>
+              <td>R1(H)+SEAN(MS+C+B)</td>
+              <td>50.78</td>
+              <td>44.61</td>
+            </tr>
+            <tr>
+              <td>R1(H)+SPADE(MS+C+B)</td>
+              <td>51.35</td>
+              <td>44.86</td>
+            </tr>
+            <tr>
+              <td rowspan="7"><strong>Hybrid Task Cascade (HTC)</strong></td>
+              <td>R1(H)</td>
+              <td>51.02</td>
+              <td>45.38</td>
+            </tr>
+            <tr>
+              <td>R1(H)+SEAN(MS)</td>
+              <td>51.40</td>
+              <td>45.93</td>
+            </tr>
+            <tr>
+              <td>R1(H)+SPADE(MS)</td>
+              <td>51.31</td>
+              <td>45.65</td>
+            </tr>
+            <tr>
+              <td>R1(H)+SEAN(MS+C)</td>
+              <td>51.96</td>
+              <td>46.44</td>
+            </tr>
+            <tr>
+              <td>R1(H)+SPADE(MS+C)</td>
+              <td>52.39</td>
+              <td>46.71</td>
+            </tr>
+            <tr>
+              <td>R1(H)+SEAN(MS+C+B)</td>
+              <td>52.65</td>
+              <td><strong>46.90</strong></td>
+            </tr>
+            <tr>
+              <td>R1(H)+SPADE(MS+C+B)</td>
+              <td><strong>52.76</strong></td>
+              <td>46.73</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="table-container" style="margin: 2rem 0;">
+        <p class="has-text-weight-medium" style="color: #2c3e50; margin-bottom: 1rem;">
+          <strong>Table 9.</strong> Performance metrics (mIoU and mAcc) for <strong>UperNet (UPN)</strong> and
+          <strong>DeepLabV3+ (DLV3+)</strong> trained on manual synthetic (MS) datasets combined with half-sized real
+          data (H). Metrics are averaged over three cross-validation datasets. The highest performance per model is
+          highlighted in bold.
+        </p>
+        <table class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth">
+          <thead>
+            <tr>
+              <th>Model</th>
+              <th>Dataset</th>
+              <th>mIoU (%)</th>
+              <th>mAcc (%)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td rowspan="7"><strong>UperNet (UPN)</strong></td>
+              <td>R1(H)</td>
+              <td>71.74</td>
+              <td>80.97</td>
+            </tr>
+            <tr>
+              <td>R1(H)+SEAN(MS)</td>
+              <td><strong>69.03</strong></td>
+              <td>79.04</td>
+            </tr>
+            <tr>
+              <td>R1(H)+SPADE(MS)</td>
+              <td>68.60</td>
+              <td>78.78</td>
+            </tr>
+            <tr>
+              <td>R1(H)+SEAN(MS+C)</td>
+              <td>66.95</td>
+              <td>77.34</td>
+            </tr>
+            <tr>
+              <td>R1(H)+SPADE(MS+C)</td>
+              <td>68.38</td>
+              <td>78.32</td>
+            </tr>
+            <tr>
+              <td>R1(H)+SEAN(MS+C+B)</td>
+              <td>65.58</td>
+              <td>76.25</td>
+            </tr>
+            <tr>
+              <td>R1(H)+SPADE(MS+C+B)</td>
+              <td>67.31</td>
+              <td>77.39</td>
+            </tr>
+            <tr>
+              <td rowspan="7"><strong>DeepLabV3+ (DLV3+)</strong></td>
+              <td>R1(H)</td>
+              <td>71.77</td>
+              <td>81.04</td>
+            </tr>
+            <tr>
+              <td>R1(H)+SEAN(MS)</td>
+              <td><strong>68.28</strong></td>
+              <td>78.82</td>
+            </tr>
+            <tr>
+              <td>R1(H)+SPADE(MS)</td>
+              <td>68.23</td>
+              <td>78.69</td>
+            </tr>
+            <tr>
+              <td>R1(H)+SEAN(MS+C)</td>
+              <td>65.78</td>
+              <td>76.96</td>
+            </tr>
+            <tr>
+              <td>R1(H)+SPADE(MS+C)</td>
+              <td>67.03</td>
+              <td>77.67</td>
+            </tr>
+            <tr>
+              <td>R1(H)+SEAN(MS+C+B)</td>
+              <td>65.74</td>
+              <td>76.73</td>
+            </tr>
+            <tr>
+              <td>R1(H)+SPADE(MS+C+B)</td>
+              <td>66.17</td>
+              <td>77.09</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="title is-4" style="color: #2c3e50; margin: 2rem 0 1rem;">Semantic Image Synthesis</h3>
+      <p>
+        We evaluated the effectiveness of synthetic data generated by the SPADE and SEAN models for training both
+        instance and semantic segmentation networks. To quantitatively assess image synthesis quality, we adopted the
+        three-step evaluation framework proposed by Park et al. 2019 and Zhu et al., 2020: (1) segmentation models were
+        trained solely on real data; (2) segmentation models were evaluated on both real validation data and
+        corresponding synthesized validation sets produced by SPADE and SEAN; (3) the segmentation performance on
+        original and synthesized validation sets was directly compared.
+      </p>
+      <p>
+        Table 10 presents the evaluation results on photo-realistic synthesized validation sets as well as the average
+        mAP achieved when training segmentation models with synthetic datasets from each synthesis method. While both
+        SPADE and SEAN produced high-quality photo-realistic data, SEAN achieved superior validation set fidelity across
+        most metrics. However, in terms of overall synthetic training data effectiveness (average mAP), SPADE-generated
+        datasets provided comparable or slightly higher improvements, suggesting a task-dependent distinction between
+        visual realism and segmentation model performance.
+      </p>
+
+      <div class="table-container" style="margin: 2rem 0;">
+        <p class="has-text-weight-medium" style="color: #2c3e50; margin-bottom: 1rem;">
+          <strong>Table 10.</strong> Performance metrics for evaluating the photo-realistic synthesis abilities of
+          <strong>SPADE</strong> and <strong>SEAN</strong> models. "AVG Syn" indicates the average segmentation model
+          performance trained with SPADE/SEAN-generated synthetic datasets (MS/F/C/B) evaluated on the R1-valid dataset.
+        </p>
+        <table class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth">
+          <thead>
+            <tr>
+              <th>Model</th>
+              <th>Train/Valid</th>
+              <th>mAP/mIoU</th>
+              <th>mAP/mAcc</th>
+              <th>AVG Syn mAP/mIoU</th>
+              <th>AVG Syn mAP/mAcc</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td rowspan="3"><strong>Cascade Mask R-CNN (CMR)</strong></td>
+              <td>R1/R1-valid</td>
+              <td>0.543</td>
+              <td>0.497</td>
+              <td>–</td>
+              <td>–</td>
+            </tr>
+            <tr>
+              <td>R1/SEAN(R1-valid)</td>
+              <td>0.472</td>
+              <td>0.437</td>
+              <td>55.25</td>
+              <td>49.33</td>
+            </tr>
+            <tr>
+              <td>R1/SPADE(R1-valid)</td>
+              <td>0.411</td>
+              <td>0.373</td>
+              <td>55.00</td>
+              <td>49.43</td>
+            </tr>
+            <tr>
+              <td rowspan="3"><strong>Hybrid Task Cascade Mask R-CNN (HTC)</strong></td>
+              <td>R1/R1-valid</td>
+              <td>0.555</td>
+              <td>0.516</td>
+              <td>–</td>
+              <td>–</td>
+            </tr>
+            <tr>
+              <td>R1/SEAN(R1-valid)</td>
+              <td>0.486</td>
+              <td>0.453</td>
+              <td>56.38</td>
+              <td>51.10</td>
+            </tr>
+            <tr>
+              <td>R1/SPADE(R1-valid)</td>
+              <td>0.431</td>
+              <td>0.398</td>
+              <td>56.15</td>
+              <td>51.05</td>
+            </tr>
+            <tr>
+              <td rowspan="3"><strong>UperNet (UPN)</strong></td>
+              <td>R1/R1-valid</td>
+              <td>73.73</td>
+              <td>87.87</td>
+              <td>–</td>
+              <td>–</td>
+            </tr>
+            <tr>
+              <td>R1/SEAN(R1-valid)</td>
+              <td>60.35</td>
+              <td>83.69</td>
+              <td>71.87</td>
+              <td>81.29</td>
+            </tr>
+            <tr>
+              <td>R1/SPADE(R1-valid)</td>
+              <td>58.30</td>
+              <td>83.92</td>
+              <td>72.47</td>
+              <td>81.85</td>
+            </tr>
+            <tr>
+              <td rowspan="3"><strong>DeepLabv3+ (DLV3+)</strong></td>
+              <td>R1/R1-valid</td>
+              <td>88.10</td>
+              <td>74.05</td>
+              <td>–</td>
+              <td>–</td>
+            </tr>
+            <tr>
+              <td>R1/SEAN(R1-valid)</td>
+              <td>62.77</td>
+              <td>73.73</td>
+              <td>71.67</td>
+              <td>81.28</td>
+            </tr>
+            <tr>
+              <td>R1/SPADE(R1-valid)</td>
+              <td>60.73</td>
+              <td>71.54</td>
+              <td>71.98</td>
+              <td>81.33</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 class="title is-4" style="color: #2c3e50; margin: 2rem 0 1rem;">Qualitative Analysis of Synthetic Data</h3>
+      <p>
+        <strong>Figure 2</strong> qualitatively illustrates improvements toward photo-realistic synthesis by
+        sequentially applying Object Size-aware Random Crop (OSRC) and Background Label Enhancement. The initial
+        synthetic images (first row) differ considerably from real surgical scenes, complicating realistic image
+        generation. Applying OSRC (second row) effectively aligns object sizes with real distributions, yet unnatural
+        background textures remain. Subsequently, introducing Background Label Enhancement (third row) significantly
+        removes these unnatural artifacts, resulting in images closely resembling actual surgical scenes. Notably,
+        although SEAN exhibits the best quantitative performance with real validation masks (Table 11), this may
+        indicate model sensitivity or potential overfitting to real data distributions.
+      </p>
+
+      <h3 class="title is-4" style="color: #2c3e50; margin: 2rem 0 1rem;">Unsupervised Image Translation</h3>
+      <p>
+        We compared the effectiveness of unsupervised image translation (SRC) and supervised semantic image synthesis
+        methods (SPADE and SEAN) for generating photo-realistic synthetic data, as illustrated in Figure 2. Two SRC
+        variants were explored: one trained to translate real segmentation masks into real images (analogous to
+        supervised synthesis methods), and the other directly translating synthetic masks to realistic images.
+        Qualitative results revealed that both SRC models failed to adequately capture semantic consistency, producing
+        unnatural synthesis outcomes. We hypothesize that the substantial domain gap between synthetic and real data
+        prevents the SRC models from accurately learning semantic relationships, resulting in inferior synthesis
+        quality. Despite its advantage of not requiring labeled pairs, SRC's effectiveness may be significantly limited
+        when the domain discrepancy is large, highlighting challenges for unsupervised translation in this setting.
+      </p>
+
+      <div class="table-container" style="margin: 2rem 0;">
+        <p class="has-text-weight-medium" style="color: #2c3e50; margin-bottom: 1rem;">
+          <strong>Table 11.</strong> Class distribution and number of frames per dataset. Each cross-validation set
+          includes Real# and Test#. Manual synthetic data (MS) and domain randomized synthetic data (DRS) are identical
+          across all cross-validation sets. <em>(HA: Harmonic Ace, CF: Cadiere Forceps, MBF: Maryland Bipolar Forceps,
+            MCA: Medium-large Clip Applier, SCA: Small Clip Applier, CAG: Curved Atraumatic Grasper, DT: Drain Tube, OI:
+            other instruments, OT: other tissues, H: head, W: wrist, B: body)</em>
+        </p>
+        <table class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth">
+          <thead>
+            <tr>
+              <th>Category</th>
+              <th>R1</th>
+              <th>R1-valid</th>
+              <th>R2</th>
+              <th>R2-valid</th>
+              <th>R3</th>
+              <th>R3-valid</th>
+              <th>MS</th>
+              <th>MS+F</th>
+              <th>MS+F+C(B)</th>
+              <th>DRS+F+C</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>HA H</td>
+              <td>1317</td>
+              <td>450</td>
+              <td>1304</td>
+              <td>463</td>
+              <td>1305</td>
+              <td>462</td>
+              <td>289</td>
+              <td>284</td>
+              <td>523</td>
+              <td>262</td>
+            </tr>
+            <tr>
+              <td>HA B</td>
+              <td>1268</td>
+              <td>448</td>
+              <td>1285</td>
+              <td>431</td>
+              <td>1272</td>
+              <td>444</td>
+              <td>297</td>
+              <td>286</td>
+              <td>528</td>
+              <td>261</td>
+            </tr>
+            <tr>
+              <td>MBF H</td>
+              <td>1460</td>
+              <td>486</td>
+              <td>1451</td>
+              <td>495</td>
+              <td>1439</td>
+              <td>507</td>
+              <td>297</td>
+              <td>292</td>
+              <td>582</td>
+              <td>425</td>
+            </tr>
+            <tr>
+              <td>MBF W</td>
+              <td>1092</td>
+              <td>376</td>
+              <td>1132</td>
+              <td>336</td>
+              <td>1060</td>
+              <td>408</td>
+              <td>286</td>
+              <td>285</td>
+              <td>1705</td>
+              <td>425</td>
+            </tr>
+            <tr>
+              <td>MBF B</td>
+              <td>672</td>
+              <td>256</td>
+              <td>724</td>
+              <td>204</td>
+              <td>679</td>
+              <td>249</td>
+              <td>273</td>
+              <td>273</td>
+              <td>514</td>
+              <td>402</td>
+            </tr>
+            <tr>
+              <td>CF H</td>
+              <td>1093</td>
+              <td>338</td>
+              <td>1058</td>
+              <td>373</td>
+              <td>1045</td>
+              <td>386</td>
+              <td>515</td>
+              <td>490</td>
+              <td>611</td>
+              <td>110</td>
+            </tr>
+            <tr>
+              <td>CF W</td>
+              <td>900</td>
+              <td>258</td>
+              <td>842</td>
+              <td>316</td>
+              <td>856</td>
+              <td>302</td>
+              <td>441</td>
+              <td>425</td>
+              <td>831</td>
+              <td>108</td>
+            </tr>
+            <tr>
+              <td>CF B</td>
+              <td>854</td>
+              <td>271</td>
+              <td>816</td>
+              <td>309</td>
+              <td>831</td>
+              <td>294</td>
+              <td>407</td>
+              <td>396</td>
+              <td>498</td>
+              <td>103</td>
+            </tr>
+            <tr>
+              <td>CAG H</td>
+              <td>704</td>
+              <td>231</td>
+              <td>687</td>
+              <td>248</td>
+              <td>705</td>
+              <td>230</td>
+              <td>692</td>
+              <td>690</td>
+              <td>2884</td>
+              <td>78</td>
+            </tr>
+            <tr>
+              <td>CAG B</td>
+              <td>787</td>
+              <td>269</td>
+              <td>779</td>
+              <td>277</td>
+              <td>803</td>
+              <td>253</td>
+              <td>691</td>
+              <td>688</td>
+              <td>1790</td>
+              <td>77</td>
+            </tr>
+            <tr>
+              <td>S H</td>
+              <td>329</td>
+              <td>111</td>
+              <td>322</td>
+              <td>118</td>
+              <td>335</td>
+              <td>105</td>
+              <td>293</td>
+              <td>292</td>
+              <td>436</td>
+              <td>560</td>
+            </tr>
+            <tr>
+              <td>S B</td>
+              <td>305</td>
+              <td>98</td>
+              <td>297</td>
+              <td>106</td>
+              <td>301</td>
+              <td>102</td>
+              <td>298</td>
+              <td>292</td>
+              <td>401</td>
+              <td>560</td>
+            </tr>
+            <tr>
+              <td>MLCA H</td>
+              <td>287</td>
+              <td>95</td>
+              <td>282</td>
+              <td>100</td>
+              <td>291</td>
+              <td>91</td>
+              <td>300</td>
+              <td>297</td>
+              <td>1314</td>
+              <td>387</td>
+            </tr>
+            <tr>
+              <td>MLCA W</td>
+              <td>230</td>
+              <td>82</td>
+              <td>233</td>
+              <td>79</td>
+              <td>236</td>
+              <td>76</td>
+              <td>299</td>
+              <td>297</td>
+              <td>554</td>
+              <td>386</td>
+            </tr>
+            <tr>
+              <td>MLCA B</td>
+              <td>140</td>
+              <td>50</td>
+              <td>142</td>
+              <td>48</td>
+              <td>141</td>
+              <td>49</td>
+              <td>287</td>
+              <td>287</td>
+              <td>405</td>
+              <td>370</td>
+            </tr>
+            <tr>
+              <td>SCA H</td>
+              <td>277</td>
+              <td>85</td>
+              <td>266</td>
+              <td>96</td>
+              <td>276</td>
+              <td>86</td>
+              <td>300</td>
+              <td>299</td>
+              <td>322</td>
+              <td>156</td>
+            </tr>
+            <tr>
+              <td>SCA W</td>
+              <td>261</td>
+              <td>78</td>
+              <td>247</td>
+              <td>92</td>
+              <td>258</td>
+              <td>81</td>
+              <td>300</td>
+              <td>299</td>
+              <td>505</td>
+              <td>156</td>
+            </tr>
+            <tr>
+              <td>SCA B</td>
+              <td>183</td>
+              <td>51</td>
+              <td>179</td>
+              <td>55</td>
+              <td>175</td>
+              <td>59</td>
+              <td>299</td>
+              <td>299</td>
+              <td>460</td>
+              <td>138</td>
+            </tr>
+            <tr>
+              <td>SI</td>
+              <td>286</td>
+              <td>92</td>
+              <td>273</td>
+              <td>105</td>
+              <td>286</td>
+              <td>92</td>
+              <td>298</td>
+              <td>297</td>
+              <td>297</td>
+              <td>758</td>
+            </tr>
+            <tr>
+              <td>ND</td>
+              <td>303</td>
+              <td>115</td>
+              <td>322</td>
+              <td>96</td>
+              <td>306</td>
+              <td>112</td>
+              <td>299</td>
+              <td>287</td>
+              <td>999</td>
+              <td>177</td>
+            </tr>
+            <tr>
+              <td>DT</td>
+              <td>298</td>
+              <td>97</td>
+              <td>296</td>
+              <td>99</td>
+              <td>297</td>
+              <td>98</td>
+              <td>300</td>
+              <td>299</td>
+              <td>301</td>
+              <td>794</td>
+            </tr>
+            <tr>
+              <td>SB</td>
+              <td>506</td>
+              <td>145</td>
+              <td>484</td>
+              <td>167</td>
+              <td>449</td>
+              <td>202</td>
+              <td>300</td>
+              <td>300</td>
+              <td>729</td>
+              <td>0</td>
+            </tr>
+            <tr>
+              <td>DT</td>
+              <td>308</td>
+              <td>103</td>
+              <td>284</td>
+              <td>127</td>
+              <td>299</td>
+              <td>112</td>
+              <td>3243</td>
+              <td>3168</td>
+              <td>2250</td>
+              <td>767</td>
+            </tr>
+            <tr>
+              <td>Liver</td>
+              <td>2785</td>
+              <td>913</td>
+              <td>2745</td>
+              <td>953</td>
+              <td>2741</td>
+              <td>957</td>
+              <td>3399</td>
+              <td>3322</td>
+              <td>3168</td>
+              <td>0</td>
+            </tr>
+            <tr>
+              <td>Stomach</td>
+              <td>2278</td>
+              <td>776</td>
+              <td>2286</td>
+              <td>768</td>
+              <td>2336</td>
+              <td>718</td>
+              <td>3264</td>
+              <td>3187</td>
+              <td>2603</td>
+              <td>0</td>
+            </tr>
+            <tr>
+              <td>Pancreas</td>
+              <td>1507</td>
+              <td>574</td>
+              <td>1544</td>
+              <td>537</td>
+              <td>1623</td>
+              <td>458</td>
+              <td>3115</td>
+              <td>3048</td>
+              <td>2131</td>
+              <td>0</td>
+            </tr>
+            <tr>
+              <td>Spleen</td>
+              <td>338</td>
+              <td>172</td>
+              <td>422</td>
+              <td>88</td>
+              <td>373</td>
+              <td>137</td>
+              <td>2232</td>
+              <td>2163</td>
+              <td>1063</td>
+              <td>0</td>
+            </tr>
+            <tr>
+              <td>Gallbladder</td>
+              <td>816</td>
+              <td>353</td>
+              <td>935</td>
+              <td>234</td>
+              <td>916</td>
+              <td>253</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+            </tr>
+            <tr>
+              <td>GZ</td>
+              <td>2705</td>
+              <td>942</td>
+              <td>2692</td>
+              <td>955</td>
+              <td>2707</td>
+              <td>940</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+            </tr>
+            <tr>
+              <td>TO I</td>
+              <td>1569</td>
+              <td>552</td>
+              <td>1571</td>
+              <td>550</td>
+              <td>1654</td>
+              <td>467</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+            </tr>
+            <tr>
+              <td>TO T</td>
+              <td>3367</td>
+              <td>1135</td>
+              <td>3352</td>
+              <td>1150</td>
+              <td>3370</td>
+              <td>1132</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+              <td>0</td>
+            </tr>
+            <tr>
+              <td>Frames</td>
+              <td>3375</td>
+              <td>1135</td>
+              <td>3355</td>
+              <td>1155</td>
+              <td>3377</td>
+              <td>1133</td>
+              <td>3400</td>
+              <td>3322</td>
+              <td>3318</td>
+              <td>4474</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="table-container" style="margin: 2rem 0;">
+        <p class="has-text-weight-medium" style="color: #2c3e50; margin-bottom: 1rem;">
+          <strong>Table 12: Hyper-parameters for Semantic Image Synthesis and Segmentation Models.</strong><br>
+          (a) <em>Semantic image synthesis:</em> Both SPADE [19] and SEAN [20] employ the hinge loss with identical
+          hyper-parameter settings (λ<sub>feat</sub> = 10.0, λ<sub>kld</sub> = 0.005, λ<sub>vgg</sub> = 10.0), and their
+          generator (G) and
+          discriminator (D) architectures follow the original implementations. Batch size (BS) and augmentation
+          strategies are also provided.<br>
+          (b) <em>Segmentation:</em> Hyper-parameters for DLV3+ [17], UperNet [18], Cascade Mask R-CNN (CMR) [14], and
+          Hybrid Task Cascade (HTC) [15] are listed. Here, β denotes momentum, weight decay (WD) and initial learning
+          rate (LR) are specified along with the LR scheduler (indicating scaling epochs with a factor of 0.1), batch
+          size (BS), and warmup (WU) parameters. All backbones are pre-trained on the ImageNet dataset.
+        </p>
+        <p class="has-text-weight-medium" style="color: #2c3e50; margin-bottom: 1rem;">
+          <strong>(a) Hyper-parameters for Semantic Image Synthesis Models</strong>
+        </p>
+        <table class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth">
+          <thead>
+            <tr>
+              <th>Method</th>
+              <th>D step per G</th>
+              <th>Input size</th>
+              <th>Optimizer</th>
+              <th>Beta</th>
+              <th>Init. LR</th>
+              <th>Final epoch</th>
+              <th>BS</th>
+              <th>Augmentation</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>SPADE [19]</td>
+              <td>1</td>
+              <td>512x512</td>
+              <td>Adam</td>
+              <td>β₁=0.5, β₂=0.999</td>
+              <td>4×10⁻⁴</td>
+              <td>50</td>
+              <td>20</td>
+              <td>resize, crop, flip</td>
+            </tr>
+            <tr>
+              <td>SEAN [20]</td>
+              <td>1</td>
+              <td>512x512</td>
+              <td>Adam</td>
+              <td>β₁=0.5, β₂=0.999</td>
+              <td>2×10⁻⁴</td>
+              <td>100</td>
+              <td>8</td>
+              <td>resize, flip</td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="has-text-weight-medium" style="color: #2c3e50; margin: 2rem 0 1rem;">
+          <strong>(b) Hyper-parameters for Segmentation Models</strong>
+        </p>
+        <table class="table is-bordered is-striped is-narrow is-hoverable is-fullwidth">
+          <thead>
+            <tr>
+              <th>Method</th>
+              <th>Backbone</th>
+              <th>Input size</th>
+              <th>Optimizer</th>
+              <th>Init. LR</th>
+              <th>LR scheduler (final)</th>
+              <th>BS</th>
+              <th>WU (iter)</th>
+              <th>WU (ratio)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>DLV3+ [17]</td>
+              <td>ResNet 101</td>
+              <td>512x512</td>
+              <td>SGD</td>
+              <td>0.001</td>
+              <td>cos. annealing (300)</td>
+              <td>8</td>
+              <td>1000</td>
+              <td>0.1</td>
+            </tr>
+            <tr>
+              <td>UperNet [18]</td>
+              <td>ResNet 101</td>
+              <td>512x512</td>
+              <td>AdamW</td>
+              <td>6×10⁻⁴</td>
+              <td>Poly (300)</td>
+              <td>8</td>
+              <td>1500</td>
+              <td>1.0×10⁻⁶</td>
+            </tr>
+            <tr>
+              <td>CMR [14]</td>
+              <td>ResNet101</td>
+              <td>1333x800</td>
+              <td>SGD</td>
+              <td>0.02</td>
+              <td>step [32] (34)</td>
+              <td>16</td>
+              <td>1000</td>
+              <td>0.002</td>
+            </tr>
+            <tr>
+              <td>HTC [15]</td>
+              <td>ResNet101</td>
+              <td>1333x800</td>
+              <td>SGD</td>
+              <td>0.02</td>
+              <td>step [32] (34)</td>
+              <td>16</td>
+              <td>1000</td>
+              <td>0.002</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="conclusion">
+    <div class="container content">
+      <h2 class="title is-3 section-title">Conclusion</h2>
+      <p>
+        <!-- Conclusion -->
+        We presented <strong>SISVSE</strong>, a large-scale surgical segmentation dataset that combines real annotated
+        images from robotic distal gastrectomy with diverse, automatically annotated synthetic data. Our novel
+        <strong>Virtual Surgery Environment</strong> enables the generation of anatomically accurate 3D scenes by
+        incorporating patient-derived CT scans and precisely measured surgical instruments, thus mitigating the need for
+        extensive manual annotations. To bridge the remaining domain gap, we proposed <strong>Object Size-Aware Random
+          Crop (OSRC)</strong> and <strong>Background Label Enhancement</strong>, significantly improving the realism of
+        photo-realistic semantic image synthesis. Through comprehensive experiments on state-of-the-art segmentation
+        models, we demonstrated that these synthetic data augmentations yield notable gains in instance segmentation
+        performance—particularly for challenging or low-frequency classes—and also maintain competitive results in
+        semantic segmentation. Our exploration of <strong>domain-randomized synthetic data</strong> for copy-paste
+        augmentation further underscores the potential of synthetic data in surgical AI, even though improvements in
+        semantic segmentation proved less substantial compared to instance segmentation.
+        augmentations yield notable gains in instance segmentation performance—particularly for challenging or
+        low-frequency classes—and also maintain competitive results in semantic segmentation. Our exploration of
+        <strong>domain-randomized synthetic data</strong> for copy-paste augmentation further underscores the potential
+        of synthetic
+        data in surgical AI, even though improvements in semantic segmentation proved less substantial compared to
+        instance segmentation.
+      </p>
+      <p>
+        By making <strong>SISVSE</strong> and our methodology publicly available, we aim to accelerate research in
+        robotic
+        and laparoscopic surgery, reduce the reliance on scarce manually annotated datasets, and inspire future
+        developments in synthetic data generation and domain adaptation. Beyond gastrectomy, our approach is readily
+        extensible to other clinical procedures requiring robust image segmentation under limited supervision.
+        <strong>We hope
+          this work fosters new opportunities for data-efficient training paradigms, opens avenues for more realistic
+          synthetic-to-real translations, and ultimately contributes to safer, more advanced computer-assisted
+          surgery.</strong>
+      </p>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="content has-text-centered">
+      <p>&copy; {{ site.time | date: '%Y' }} Surgical Scene Segmentation Using Semantic Image Synthesis with a Virtual
+        Surgery Environment. All rights reserved.<br>
+        Content is licensed under <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">CC BY-SA
+          4.0</a>.
+      </p>
+    </div>
+  </footer>
+</body>
