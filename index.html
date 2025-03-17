@@ -1990,13 +1990,13 @@ layout: default
       <div class="table-container" style="margin: 2rem 0;">
         <p class="has-text-weight-medium" style="color: #2c3e50; margin-bottom: 1rem;">
           <strong>Table 12: Hyper-parameters for Semantic Image Synthesis and Segmentation Models.</strong><br>
-          (a) <em>Semantic image synthesis:</em> Both SPADE [19] and SEAN [20] employ the hinge loss with identical
+          (a) <em>Semantic image synthesis:</em> Both SPADE and SEAN employ the hinge loss with identical
           hyper-parameter settings (λ<sub>feat</sub> = 10.0, λ<sub>kld</sub> = 0.005, λ<sub>vgg</sub> = 10.0), and their
           generator (G) and
           discriminator (D) architectures follow the original implementations. Batch size (BS) and augmentation
           strategies are also provided.<br>
-          (b) <em>Segmentation:</em> Hyper-parameters for DLV3+ [17], UperNet [18], Cascade Mask R-CNN (CMR) [14], and
-          Hybrid Task Cascade (HTC) [15] are listed. Here, β denotes momentum, weight decay (WD) and initial learning
+          (b) <em>Segmentation:</em> Hyper-parameters for DLV3+, UperNet, Cascade Mask R-CNN (CMR), and
+          Hybrid Task Cascade (HTC) are listed. Here, β denotes momentum, weight decay (WD) and initial learning
           rate (LR) are specified along with the LR scheduler (indicating scaling epochs with a factor of 0.1), batch
           size (BS), and warmup (WU) parameters. All backbones are pre-trained on the ImageNet dataset.
         </p>
@@ -2019,7 +2019,7 @@ layout: default
           </thead>
           <tbody>
             <tr>
-              <td>SPADE [19]</td>
+              <td>SPADE</td>
               <td>1</td>
               <td>512x512</td>
               <td>Adam</td>
@@ -2030,7 +2030,7 @@ layout: default
               <td>resize, crop, flip</td>
             </tr>
             <tr>
-              <td>SEAN [20]</td>
+              <td>SEAN</td>
               <td>1</td>
               <td>512x512</td>
               <td>Adam</td>
@@ -2061,7 +2061,7 @@ layout: default
           </thead>
           <tbody>
             <tr>
-              <td>DLV3+ [17]</td>
+              <td>DLV3+</td>
               <td>ResNet 101</td>
               <td>512x512</td>
               <td>SGD</td>
@@ -2072,7 +2072,7 @@ layout: default
               <td>0.1</td>
             </tr>
             <tr>
-              <td>UperNet [18]</td>
+              <td>UperNet</td>
               <td>ResNet 101</td>
               <td>512x512</td>
               <td>AdamW</td>
@@ -2083,7 +2083,7 @@ layout: default
               <td>1.0×10⁻⁶</td>
             </tr>
             <tr>
-              <td>CMR [14]</td>
+              <td>CMR</td>
               <td>ResNet101</td>
               <td>1333x800</td>
               <td>SGD</td>
@@ -2094,7 +2094,7 @@ layout: default
               <td>0.002</td>
             </tr>
             <tr>
-              <td>HTC [15]</td>
+              <td>HTC</td>
               <td>ResNet101</td>
               <td>1333x800</td>
               <td>SGD</td>
@@ -2145,6 +2145,69 @@ layout: default
           synthetic-to-real translations, and ultimately contributes to safer, more advanced computer-assisted
           surgery.</strong>
       </p>
+    </div>
+  </section>
+
+  <section class="section" id="references">
+    <div class="container content">
+      <h2 class="title is-3 section-title">References</h2>
+      <div class="references">
+        <p class="reference-item">
+          Chen, K., Wang, J., Pang, J., et al. (2019). MMDetection: Open mmlab detection toolbox and benchmark. arXiv
+          preprint arXiv:1906.07155.
+        </p>
+
+        <p class="reference-item">
+          Intel Corporation (2019). Computer Vision Annotation Tool (CVAT). <a href="https://github.com/opencv/cvat"
+            target="_blank">https://github.com/opencv/cvat</a>
+        </p>
+
+        <p class="reference-item"></p>
+        Jung, C., Kwon, G., & Ye, J.C. (2022). Exploring patch-wise semantic relation for contrastive learning in
+        image-to-image translation tasks. In Proceedings of CVPR.
+        </p>
+
+        <p class="reference-item"></p>
+        Lin, T.Y., Maire, M., Belongie, S., et al. (2014). Microsoft COCO: Common objects in context. In Proceedings of
+        ECCV.
+        </p>
+
+        <p class="reference-item"></p>
+        MMSegmentation Contributors (2020). MMSegmentation: OpenMMLab semantic segmentation toolbox and benchmark. <a
+          href="https://github.com/open-mmlab/mmsegmentation"
+          target="_blank">https://github.com/open-mmlab/mmsegmentation</a>
+        </p>
+
+        <p class="reference-item">
+          Park, T., Liu, M.Y., Wang, T.C., & Zhu, J.Y. (2019). Semantic image synthesis with spatially-adaptive
+          normalization. In Proceedings of CVPR.
+        </p>
+
+        <p class="reference-item">
+          Schroeder, W., Martin, K., & Lorensen, B. (2006). The Visualization Toolkit: An Object-Oriented Approach to 3D
+          Graphics (4th ed.). Kitware.
+        </p>
+
+        <p class="reference-item"></p>
+        Tremblay, J., Prakash, A., Acuna, D., et al. (2018). Training deep networks with synthetic data: Bridging the
+        reality gap by domain randomization. In Proceedings of CVPR Workshops.
+        </p>
+
+        <p class="reference-item"></p>
+        Yoon, Y., Choi, W., Han, D.M., et al. (2020). Semi-supervised learning for instrument detection with a class
+        imbalanced dataset. In Proceedings of MICCAI Workshops.
+        </p>
+
+        <p class="reference-item">
+          Yoon, J., Hong, S., Lee, J., et al. (2022). Surgical scene segmentation using semantic image synthesis with a
+          virtual surgery environment. In Proceedings of MICCAI.
+        </p>
+
+        <p class="reference-item">
+          Zhu, X., Hu, H., Lin, S., & Dai, J. (2020). SEAN: Image synthesis with semantic region-adaptive normalization.
+          In Proceedings of CVPR.
+        </p>
+      </div>
     </div>
   </section>
 
