@@ -2210,7 +2210,37 @@ layout: default
       </div>
     </div>
   </section>
+  <section class="section" id="citation">
+    <div class="container">
+      <div class="content">
+        <h2 class="title is-3 has-text-centered">Citation</h2>
+        <div class="box">
+          <p>If you find our work useful in your research, please consider citing:</p>
+          <pre class="citation-block has-background-light p-4" style="white-space: pre-wrap; overflow-x: auto;">
+            @misc{yoon2024sisvseenhanced,
+              title={Surgical Scene Segmentation Using Semantic Image Synthesis with a Virtual Surgery Environment: Enhanced with Object Size-Aware Random Crop and Background Label Enhancement for Photo-Realistic Synthesis},
+              url={https://sisvse.github.io/},
+              author={Jihun Yoon, Bogyu Park, Jiwon Lee, Bokyung Park, Sungjae Kim, SungHyun Park, Woo Jin Hyung, and Min-Kook Choi},
+              month={March},
+              year={2024}
+            }
+          </pre>
+          <button class="button is-small is-link mt-2" onclick="copyToClipboard()">
+            Copy BibTeX
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
 
+  <script>
+    function copyToClipboard() {
+      const citation = document.querySelector('.citation-block').textContent;
+      navigator.clipboard.writeText(citation).then(() => {
+        alert('Citation copied to clipboard!');
+      });
+    }
+  </script>
   <footer class="footer">
     <div class="content has-text-centered">
       <p>&copy; {{ site.time | date: '%Y' }} Surgical Scene Segmentation Using Semantic Image Synthesis with a Virtual
